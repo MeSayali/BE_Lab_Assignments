@@ -2,40 +2,53 @@
 #include <iostream>
 using namespace std;
 
-int fibonacciRecursive(int n) {
-    if (n <= 1)
-        return n;
-    return fibonacciRecursive(n - 1) + fibonacciRecursive(n - 2);
+// Recursive function
+int fibonacci(int n) {
+
+    if(n == 0) {
+        return 0;
+    }
+
+    if(n == 1) {
+        return 1;
+    }
+
+    return fibonacci(n-1) + fibonacci(n-2);
 }
 
-int fibonacciIterative(int n) {
-    if (n <= 1)
-        return n;
+// Non-recursive function
+void fibonacciIterative(int n) {
 
-    int a = 0, b = 1;
+    int a = 0, b = 1, c;
 
-    for (int i = 2; i <= n; i++) {
-        int c = a + b;
+    for(int i = 0; i < n; i++) {
+
+        cout << a << " ";
+
+        c = a + b;
         a = b;
         b = c;
     }
-
-    return b;
 }
 
 int main() {
+
     int n;
-    cout << "Enter n: ";
+
+    cout << "Enter the value of n: ";
     cin >> n;
 
-    cout << "Recursive Fibonacci: ";
-    for (int i = 0; i <= n; i++)
-        cout << fibonacciRecursive(i) << " ";
+    // Recursive approach
+    cout << "\nFibonacci Series (Recursive): ";
 
-    cout << "\nIterative Fibonacci: ";
-    for (int i = 0; i <= n; i++)
-        cout << fibonacciIterative(i) << " ";
+    for(int i = 0; i < n; i++) {
+        cout << fibonacci(i) << " ";
+    }
 
-    cout << "\n";
+    // Non-recursive approach
+    cout << "\nFibonacci Series (Non-Recursive): ";
+
+    fibonacciIterative(n);
+
     return 0;
 }
