@@ -1,91 +1,216 @@
 
-#include <iostream>
-#include <vector>
-#include <cstdlib>
-#include <ctime>
-#include <algorithm>
+#include <bits/stdc++.h>
 using namespace std;
 
-int partition(vector<int>& a, int low, int high, long long& comp) {
-    int pivot = a[high];
-    int i = low - 1;
+// Count actual comparisons and swaps
+int comparisons, swapsCount;
 
-    for (int j = low; j < high; j++) {
-        comp++;
+// Partition for Deterministic Quick Sort
+// First element is selected as pivot
+int deterministicPartition(vector<int> &arr, int low, int high) {
 
-        if (a[j] <= pivot) {
-            i++;
-            swap(a[i], a[j]);
+    int pivot = arr[low];
+    int left = low + 1;
+    int right = high;
+
+    while (true) {
+
+        while (left <= right) {
+            comparisons++;
+            if (arr[left] <= pivot)
+                left++;
+            else
+                break;
         }
+
+        while (left <= right) {
+            comparisons++;
+            if (arr[right] >= pivot)
+                right--;
+            else
+                break;
+        }
+
+        if (left > right)
+            break;
+
+        swap(arr[left], arr[right]);
+        swapsCount++;
     }
 
-    swap(a[i + 1], a[high]);
-    return i + 1;
+    swap(arr[low], arr[right]);
+    swapsCount++;
+
+    return right;
 }
 
-int randomizedPartition(vector<int>& a, int low, int high,
-                        long long& comp) {
+// Deterministic Quick Sort
+void deterministicQuickSort(vector<int> &arr, int low, int high) {
+
+    if (low < high) {
+
+        int pivotIndex = deterministicPartition(arr, low, high);
+
+        // Sort left subarray
+        deterministicQuickSort(arr, low, pivotIndex - 1);
+
+        // Sort right subarray
+        deterministicQuickSort(arr, pivotIndex + 1, high);
+    }
+}
+
+
+// Partition for Randomized Quick Sort
+int randomizedPartition(vector<int> &arr, int low, int high) {
+
+    // Select a random pivot
     int pivotIndex = low + rand() % (high - low + 1);
-    swap(a[pivotIndex], a[high]);
 
-    return partition(a, low, high, comp);
+    // Move random pivot to first position
+    swap(arr[low], arr[pivotIndex]);
+    swapsCount++;
+
+    int pivot = arr[low];
+    int left = low + 1;
+    int right = high;
+
+    while (true) {
+
+        while (left <= right) {
+            comparisons++;
+            if (arr[left] <= pivot)
+                left++;
+            else
+                break;
+        }
+
+        while (left <= right) {
+            comparisons++;
+            if (arr[right] >= pivot)
+                right--;
+            else
+                break;
+        }
+
+        if (left > right)
+            break;
+
+        swap(arr[left], arr[right]);
+        swapsCount++;
+    }
+
+    // Place pivot at correct position
+    swap(arr[low], arr[right]);
+    swapsCount++;
+
+    return right;
 }
 
-void quickSort(vector<int>& a, int low, int high, long long& comp) {
+// Randomized Quick Sort
+void randomizedQuickSort(vector<int> &arr, int low, int high) {
+
     if (low < high) {
-        int p = partition(a, low, high, comp);
-        quickSort(a, low, p - 1, comp);
-        quickSort(a, p + 1, high, comp);
+
+        int pivotIndex = randomizedPartition(arr, low, high);
+
+        // Sort left subarray
+        randomizedQuickSort(arr, low, pivotIndex - 1);
+
+        // Sort right subarray
+        randomizedQuickSort(arr, pivotIndex + 1, high);
     }
 }
 
-void randomizedQuickSort(vector<int>& a, int low, int high,
-                         long long& comp) {
-    if (low < high) {
-        int p = randomizedPartition(a, low, high, comp);
-        randomizedQuickSort(a, low, p - 1, comp);
-        randomizedQuickSort(a, p + 1, high, comp);
-    }
-}
 
-void display(vector<int>& a) {
-    for (int x : a)
+// Print array
+void printArray(const vector<int> &arr) {
+    for (int x : arr)
         cout << x << " ";
-    cout << "\n";
+
+    cout << endl;
 }
 
+
+// Main function
 int main() {
+
     srand(time(0));
 
     int n;
-    cout << "Enter number of elements: ";
+
+    cout << "Enter the number of elements: ";
     cin >> n;
 
     if (n <= 0) {
-        cout << "Invalid size\n";
+        cout << "Invalid array size!";
         return 0;
     }
 
-    vector<int> a(n), b;
+    vector<int> original(n);
 
-    cout << "Enter elements: ";
+    cout << "Enter elements:\n";
+
     for (int i = 0; i < n; i++)
-        cin >> a[i];
+        cin >> original[i];
 
-    b = a;
+    int ch;
 
-    long long comp1 = 0, comp2 = 0;
+    while (true) {
 
-    quickSort(a, 0, n - 1, comp1);
-    randomizedQuickSort(b, 0, n - 1, comp2);
+        cout << "\n1. Deterministic Quick Sort";
+        cout << "\n2. Randomized Quick Sort";
+        cout << "\n3. Exit";
+        cout << "\nEnter your choice: ";
 
-    cout << "Deterministic Quick Sort: ";
-    display(a);
-    cout << "Comparisons: " << comp1 << "\n";
+        cin >> ch;
 
-    cout << "Randomized Quick Sort: ";
-    display(b);
-    cout << "Comparisons: " << comp2 << "\n";
+        // Make a fresh copy for every sorting operation
+        vector<int> arr = original;
+
+        // Reset counters
+        comparisons = 0;
+        swapsCount = 0;
+
+        switch (ch) {
+
+        case 1:
+
+            cout << "\nOriginal Array:\n";
+            printArray(arr);
+
+            deterministicQuickSort(arr, 0, n - 1);
+
+            cout << "Sorted Array (Deterministic):\n";
+            printArray(arr);
+
+            cout << "Comparisons: " << comparisons << endl;
+            cout << "Swaps: " << swapsCount << endl;
+
+            break;
+
+        case 2:
+
+            cout << "\nOriginal Array:\n";
+            printArray(arr);
+
+            randomizedQuickSort(arr, 0, n - 1);
+
+            cout << "Sorted Array (Randomized):\n";
+            printArray(arr);
+
+            cout << "Comparisons: " << comparisons << endl;
+            cout << "Swaps: " << swapsCount << endl;
+
+            break;
+
+        case 3:
+            cout << "Program exited.";
+            return 0;
+
+        default:
+            cout << "Invalid choice!";
+        }
+    }
 
     return 0;
 }
